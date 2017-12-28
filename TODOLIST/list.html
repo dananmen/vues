@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="vue.js"></script>
+</head>
+<style>
+    *{
+        box-sizing: border-box;
+        list-style: none;
+        text-decoration: none;
+    }
+    body{
+        margin: 0;
+        padding: 0;
+        font-size: 16px;
+        background: #CDCDCD;
+    }
+    header{
+        height: 50px;
+        width: 100%;
+        background: rgba(47,47,47,0.98);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    header>input{
+        width: 40%;
+        height: 24px;
+        text-indent: 10px;
+        border-radius: 5px;
+        box-shadow: 0 1px 0 rgba(255,255,255,0.24), 0 1px 6px rgba(0,0,0,0.45) inset;
+        border: none;
+
+    }
+    .btns {
+        width: 40%;
+        margin: 60px auto;
+        height: 30px;
+        margin-top: 10px;
+    }
+    .btns input {
+        width: 56px;
+        border-radius: 5px;
+        float: right;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+    .list-box {
+        width: 40%;
+        height: auto;
+        margin: 0 auto;
+        margin-top: 10px;
+        position: relative;
+    }
+    .list {
+        margin-left: -40px;
+        /*list-style: disc;*/
+        height: 36px;
+        line-height: 32px;
+        background: #fff;
+        /*position: relative;*/
+        margin-bottom: 10px;
+        /*padding: 0 10px;*/
+        border-radius: 3px;
+        border-left: 5px solid #629A9C;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+
+    }
+    .des>.dian{
+        top: 2px;
+        left: 10px;
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+    }
+    .des{
+        width: 100%;
+        height: 100%;
+        border-radius: 3px;
+        list-style: disc;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .des>button{
+        top: 2px;
+        right: 5px;
+        display: inline-block;
+        width: 14px;
+        height: 12px;
+        border-radius: 14px;
+        border: 6px double #FFF;
+        background: #CCC;
+        line-height: 14px;
+        text-align: center;
+        color: #FFF;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .red {
+        background: red;
+    }
+    .list .con {
+        float: left;
+    }
+    .list .del {
+        float: right
+    }
+</style>
+<body>
+<div id="app">
+    <header>
+        <input type="text" placeholder="添加TODO" @keydown.13="add" v-model="text" v-focus="">
+    </header>
+    <div class="btns">
+        <input class="do" type="button" value="未完成" @click="change('0')" :class="{red:status=='0'}">
+        <input class="did" type="button" value="已完成" @click="change('1')" :class="{red:status=='1'}">
+        <input class="all" type="button" value="全部" @click="change('all')" :class="{red:status=='all'}">
+    </div>
+
+    <ul class="list-box">
+       <li class="list" v-for="item in datas" v-show="all.length>0">
+           <div class="des" v-if="item.edit" @dblclick="show(item)">
+               <input type="checkbox" class="dian" v-model="item.state" @click="changestage(item)">
+               <span class="con">{{item.con}}</span>
+               <!--$event 时间对象-->
+               <button @click="del(item.id)"></button>
+           </div>
+           <input type="text" v-else="" v-model="item.con" @blur="show(item)">
+       </li>
+        <div class="list" v-show="all.length==0">没有数据</div>
+
+    </ul>
+</div>
+
+</body>
+<script>
+    Vue.directive('focus', {
+        inserted: function (v1,v2) {
+
+            v1.focus();
+        },
+
+    })
+
+    new Vue({
+        el:'#app',
+        data:{
+            all:localStorage.todo? JSON.parse(localStorage.todo):[],
+            text:"",
+            a:"123",
+            status:"all",
+
+        },
+        methods:{
+            add(){
+                if(!this.text){
+                    alert("请输入内容");
+                    return;
+                }
+                var obj = {};
+                obj.id = 1000*Math.random()+new Date().getTime();
+                obj.con = this.text;
+                obj.state=false;
+                obj.edit = true;
+                this.all.push(obj);
+                this.text = '';
+                localStorage.todo = JSON.stringify(this.all);
+            },
+            change(str){
+                this.status = str;
+            },
+            changestage(obj){
+                obj.state = !obj.state;
+                localStorage.todo = JSON.stringify(this.all);
+            },
+            del(val){
+                this.all = this.all.filter(ele=>{
+                    return ele.id != val;
+                })
+                localStorage.todo = JSON.stringify(this.all);
+            },
+            show(val){
+                val.edit = !val.edit;
+                localStorage.todo = JSON.stringify(this.all);
+            }
+
+        },
+        computed:{
+            datas:function(){
+                var that = this;
+                return datas=this.all.filter(function (obj) {
+                    if(that.status == "all"){
+                        return obj;
+                    }else{
+                        if(obj.state == that.status){
+                            return obj;
+                        }
+                    }
+                })
+            }
+        }
+    })
+
+
+</script>
+</html>
